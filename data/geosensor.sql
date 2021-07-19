@@ -13,8 +13,7 @@ CREATE TABLE geosensor.sensor(
    serialnumber INT,
    information VARCHAR(500),
    owner VARCHAR(50), --structure owner, ex : PNE / INRAE / IMT / CNRS ...
-   plotcode character varying(20),
-   contactmail text
+   contactmail text,
    PRIMARY KEY(id_sensor)
 );
 
