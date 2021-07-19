@@ -10,12 +10,14 @@ CREATE TABLE geosensor.sensor(
    manufacturer VARCHAR(50),
    brand VARCHAR(50),
    model VARCHAR(50),
-   serialNumber INT,
+   serialnumber INT,
    information VARCHAR(500),
    owner VARCHAR(50), --structure owner, ex : PNE / INRAE / IMT / CNRS ...
-   contact json, --ex : {"firstName":"Clotilde", "lastName":"SAGOT", "email":"clotilde.sagot@ecrins-parcnational.fr"}
+   plotcode character varying(20),
+   contactmail text
    PRIMARY KEY(id_sensor)
 );
+
 
 CREATE TABLE geosensor.station(
    id_station serial NOT NULL,
