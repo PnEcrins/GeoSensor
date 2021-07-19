@@ -6,13 +6,13 @@ CREATE TABLE geosensor.sensor(
    id_sensor serial NOT NULL,
    name VARCHAR(50),
    sensorType VARCHAR(50), --possibilities : environmental sensor / camera trap ...
-   plotcode VARCHAR(50),
    manufacturer VARCHAR(50),
    brand VARCHAR(50),
    model VARCHAR(50),
    serialnumber INT,
    information VARCHAR(500),
    owner VARCHAR(50), --structure owner, ex : PNE / INRAE / IMT / CNRS ...
+   plotcode VARCHAR(50),
    contactmail text,
    PRIMARY KEY(id_sensor)
 );
