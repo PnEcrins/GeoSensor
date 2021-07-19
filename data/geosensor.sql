@@ -9,7 +9,7 @@ CREATE TABLE geosensor.sensor(
    manufacturer VARCHAR(50),
    brand VARCHAR(50),
    model VARCHAR(50),
-   serialnumber INT,
+   serialnumber VARCHAR(50),
    information VARCHAR(500),
    owner VARCHAR(50), --structure owner, ex : PNE / INRAE / IMT / CNRS ...
    plotcode VARCHAR(50),
