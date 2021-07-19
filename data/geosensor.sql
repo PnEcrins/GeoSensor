@@ -5,7 +5,7 @@ CREATE SCHEMA IF NOT EXISTS geosensor;
 CREATE TABLE geosensor.sensor(
    id_sensor serial NOT NULL,
    name VARCHAR(50),
-   sensorType VARCHAR(50), --possibilities : environmental sensor / camera trap ...
+   sensorType VARCHAR(200), --possibilities : environmental sensor / camera trap ...
    manufacturer VARCHAR(50),
    brand VARCHAR(50),
    model VARCHAR(50),
