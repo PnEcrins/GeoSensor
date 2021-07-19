@@ -24,7 +24,7 @@ CREATE TABLE geosensor.station(
    description VARCHAR(500),
    elevation FLOAT,
    geom geometry(Point,2154), 
-   PRIMARY KEY(id_station),
+   PRIMARY KEY(id_station)
 );
 
 
