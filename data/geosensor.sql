@@ -1,26 +1,3 @@
---Fonctions pour les triggers de maj des données issues de la geometrie des communes
-
-CREATE OR REPLACE FUNCTION geosensor.update_commune()
- RETURNS trigger
- LANGUAGE plpgsql
-AS $function$
- DECLARE
- geom_change boolean; 
-BEGIN
- geom_change = false;
- IF(TG_OP ='UPDATE') THEN
-     SELECT INTO geom_change NOT ST_EQUALS(OLD.geom, NEW.geom);
- END IF;
- IF(TG_OP='INSERT' OR (TG_OP='UPDATE' AND geom_change)) THEN
-    UPDATE geosensor.station  SET commune=ref_geo.l_areas.area_name 
-   	FROM ref_geo.l_areas 
- 	WHERE ref_geo.l_areas.id_type=25 and ST_Within(geosensor.station.geom,ref_geo.l_areas.geom)
- 	and geosensor.station.id_station=new.id_station;
- END IF;
- RETURN NEW;
-END;
-$function$
-;
 
 
 --Schema geosensor
@@ -52,10 +29,6 @@ CREATE TABLE geosensor.station(
    commune VARCHAR(100),
    PRIMARY KEY(id_station)
 );
-
-CREATE TRIGGER update_geom AFTER
-insert or update of geom
-on geosensor.station for each row execute procedure geosensor.update_commune();
 
 
 CREATE TABLE geosensor.resourceType(
@@ -138,3 +111,32 @@ CREATE TABLE geosensor.cor_station_sensor(
    FOREIGN KEY(id_sensor) REFERENCES geosensor.sensor(id_sensor),
    FOREIGN KEY(id_station) REFERENCES geosensor.station(id_station)
 );
+
+--Fonctions pour les triggers de maj des données issues de la geometrie des communes
+
+CREATE OR REPLACE FUNCTION geosensor.update_commune()
+ RETURNS trigger
+ LANGUAGE plpgsql
+AS $function$
+ DECLARE
+ geom_change boolean; 
+BEGIN
+ geom_change = false;
+ IF(TG_OP ='UPDATE') THEN
+     SELECT INTO geom_change NOT ST_EQUALS(OLD.geom, NEW.geom);
+ END IF;
+ IF(TG_OP='INSERT' OR (TG_OP='UPDATE' AND geom_change)) THEN
+    UPDATE geosensor.station  SET commune=ref_geo.l_areas.area_name 
+   	FROM ref_geo.l_areas 
+ 	WHERE ref_geo.l_areas.id_type=25 and ST_Within(geosensor.station.geom,ref_geo.l_areas.geom)
+ 	and geosensor.station.id_station=new.id_station;
+ END IF;
+ RETURN NEW;
+END;
+$function$
+;
+
+
+CREATE TRIGGER update_geom AFTER
+insert or update of geom
+on geosensor.station for each row execute procedure geosensor.update_commune();
