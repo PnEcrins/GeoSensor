@@ -105,6 +105,7 @@ CREATE TABLE geosensor.cor_station_sensor(
    dateBeg timestamp with time zone, --ISO 8601 Time string
    dateEnd timestamp with time zone, --ISO 8601 Time string
    coment VARCHAR(500),
+   id_corsensta serial NOT NULL,
    FOREIGN KEY(id_sensor) REFERENCES geosensor.sensor(id_sensor),
    FOREIGN KEY(id_station) REFERENCES geosensor.station(id_station)
 );
