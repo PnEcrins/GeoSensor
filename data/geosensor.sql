@@ -23,7 +23,8 @@ CREATE TABLE geosensor.station(
    name VARCHAR(50),
    description VARCHAR(500),
    elevation FLOAT,
-   geom geometry(Point,2154), 
+   geom geometry(Point,2154),
+   commune VARCHAR(100),
    PRIMARY KEY(id_station)
 );
 
