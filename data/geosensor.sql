@@ -140,3 +140,33 @@ $function$
 CREATE TRIGGER update_commune AFTER -- met en place le trigger 'update_commune' APRES
 insert or update of geom --la création d'une station ou la modification de sa géométrie
 on geosensor.station for each row execute procedure geosensor.update_commune(); --éxecute ce trigger pour chaque ligne de la table 'station'
+
+
+
+CREATE OR REPLACE FUNCTION geosensor.update_alti()
+ RETURNS trigger
+ LANGUAGE plpgsql
+AS $function$
+ DECLARE
+ geom_change boolean; --variable qui déterminera si la géométrie de 'station' a changé
+BEGIN
+ geom_change = false;
+ IF(TG_OP ='UPDATE') THEN --si une station est mise à jour dans la table 'station' alors,
+     SELECT INTO geom_change NOT ST_EQUALS(OLD.geom, NEW.geom); --vérifie si la géométrie de la station a changé de géométrie
+ END IF;
+ IF(TG_OP='INSERT' OR (TG_OP='UPDATE' AND geom_change)) THEN --si il y a création ou modification d'une station et que sa géométrie a changé
+    UPDATE geosensor.station  SET elevation=ST_Value(ref_geo.dem.rast,1,geosensor.station.geom) --met à jour le champ 'elevation' des stations en récupérant la valeur de la bande 1 du raster de la station
+	FROM ref_geo.dem --depuis la table 'dem' qui contient le raster (MNT)
+	WHERE st_intersects(geosensor.station.geom,ref_geo.dem.rast) --au niveau du point d'intersection entre le MNT et la géométrie de la station
+ 	and geosensor.station.id_station=new.id_station; --ET ne fait ceci que pour la station ajoutée ou modifiée
+ END IF;
+ RETURN NEW;
+END;
+$function$
+;
+
+
+
+CREATE TRIGGER update_alti AFTER -- met en place le trigger 'update_alti' APRES
+insert or update of geom --la création d'une station ou la modification de sa géométrie
+on geosensor.station for each row execute procedure geosensor.update_alti(); --éxecute ce trigger pour chaque ligne de la table 'station'
