@@ -24,9 +24,9 @@ CREATE TABLE geosensor.station(
    id_station serial NOT NULL,
    name VARCHAR(50),
    description VARCHAR(500),
-   elevation FLOAT, --récupéré grâce au trigger qui repose sur un MNT (dem) dans le schéma ref_geo du serveur Lizmap du BRGM
+   elevation FLOAT, --récupéré grâce au trigger qui intersecte un MNT (dem) dans le schéma ref_geo
    geom geometry(Point,2154),
-   commune VARCHAR(100), --récupéré grâce au trigger qui repose sur les communes (l_area) dans le schéma ref_geo du serveur Lizmap du BRGM
+   commune VARCHAR(100), --récupéré grâce au trigger qui intersecte les communes (l_area) dans le schéma ref_geo
    PRIMARY KEY(id_station)
 );
 
@@ -119,17 +119,17 @@ CREATE OR REPLACE FUNCTION geosensor.update_commune()
  LANGUAGE plpgsql
 AS $function$
  DECLARE
- geom_change boolean; --variable qui déterminera s'il faut mettre à jour le champ 'commune' de la table 'station'
+ geom_change boolean; --variable qui déterminera s'il la géométrie de 'station' a changé
 BEGIN
  geom_change = false;
  IF(TG_OP ='UPDATE') THEN --si une station est mise à jour dans la table 'station' alors,
-     SELECT INTO geom_change NOT ST_EQUALS(OLD.geom, NEW.geom); --sélectionne les stations qui ont changé de géométrie
+     SELECT INTO geom_change NOT ST_EQUALS(OLD.geom, NEW.geom); --vérifie si la géométrie de la station a changé de géométrie
  END IF;
- IF(TG_OP='INSERT' OR (TG_OP='UPDATE' AND geom_change)) THEN --si il y a création ou modification d'une station
-    UPDATE geosensor.station  SET commune=ref_geo.l_areas.area_name --met à jour le champ 'commune' en te basant sur le champ 'area_name' 
+ IF(TG_OP='INSERT' OR (TG_OP='UPDATE' AND geom_change)) THEN --si il y a création ou modification d'une station et que sa géométrie a changé
+    UPDATE geosensor.station  SET commune=ref_geo.l_areas.area_name --met à jour le champ 'commune' des stations en te basant sur le champ 'area_name'
    	FROM ref_geo.l_areas --de la table 'l_areas' du schéma ref_geo
  	WHERE ref_geo.l_areas.id_type=25 and ST_Within(geosensor.station.geom,ref_geo.l_areas.geom)--en prenant uniquement en compte les communes (id_type=25) ET fait ceci lorsqu'une station se trouve dans une commune de la table 'l_areas' 
- 	and geosensor.station.id_station=new.id_station; --ET ne fait ceci que pour une station ajoutée ou modifiée
+ 	and geosensor.station.id_station=new.id_station; --ET ne fait ceci que pour la station ajoutée ou modifiée
  END IF;
  RETURN NEW;
 END;
@@ -138,5 +138,5 @@ $function$
 
 
 CREATE TRIGGER update_commune AFTER -- met en place le trigger 'update_commune' APRES
-insert or update of geom --la création d'une station ou la modification de son emplacement
+insert or update of geom --la création d'une station ou la modification de sa géométrie
 on geosensor.station for each row execute procedure geosensor.update_commune(); --éxecute ce trigger pour chaque ligne de la table 'station'
